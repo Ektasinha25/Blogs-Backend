@@ -1,6 +1,6 @@
-const db = require('../config/db');
-const bcrypt = require('bcrypt');
-const generateToken = require('../utils/generateToken');
+const db = require("../config/db");
+const bcrypt = require("bcrypt");
+const generateToken = require("../utils/generateToken");
 
 // SIGNUP
 const signup = async (req, res) => {
@@ -11,20 +11,20 @@ const signup = async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: "All fields are required",
       });
     }
 
     // 2. Check if user already exists
     const [existingUser] = await db.query(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
+      "SELECT id FROM users WHERE email = ?",
+      [email],
     );
 
     if (existingUser.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Email already registered'
+        message: "Email already registered",
       });
     }
 
@@ -33,27 +33,26 @@ const signup = async (req, res) => {
 
     // 4. Insert user
     const [result] = await db.query(
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-      [username, email, hashedPassword]
+      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+      [username, email, hashedPassword],
     );
 
     // 5. Generate token
     const token = generateToken({
       id: result.insertId,
-      email
+      email,
     });
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
-      token
+      message: "User registered successfully",
+      token,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
@@ -67,20 +66,19 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email and password are required'
+        message: "Email and password are required",
       });
     }
 
     // 2. Find user
-    const [users] = await db.query(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
-    );
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
 
     if (users.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -92,7 +90,7 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -101,20 +99,19 @@ const login = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
-      token
+      message: "Login successful",
+      token,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
 
 module.exports = {
   signup,
-  login
+  login,
 };
